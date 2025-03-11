@@ -111,7 +111,7 @@ The example dataframe structure read with pandas on the npz file.
    df_idx = pd.read_json(json_file, orient="index")
 
    
-   # [add the ms2 display function here as well]
+   # Display ms2 of the peptide
    ms2_df, b_frags, y_frags = cal_b_y_ion_mass("PEPTIDE")
    ```
    
