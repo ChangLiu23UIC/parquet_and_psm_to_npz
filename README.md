@@ -16,7 +16,9 @@
    import numpy as np
    import pandas as pd
 
-   npz = np.load(r'G:\Files_for_Yuchi\Zebrafish\Merged_result\NP11-TDr-BA8-O1005_7-2.npz', allow_pickle= True)
+   npz_file = "your/file/address"
+   
+   npz = np.load(npz_file, allow_pickle= True)
    df = pd.DataFrame({item: npz[item] for item in npz.files})
    ```
 Please notice that current npz files are separated by file and species
@@ -26,7 +28,6 @@ The example dataframe structure read with pandas on the npz file.
 ![image](https://github.com/user-attachments/assets/92e927cf-d65c-4987-822d-b39ea8a772a6)
 
    
-
 3. Mass spectrum is an array of [(mass, intensity), (mass, intensity), ....], where mass monotonically increase, intensity, these are stored in the corresponding parquet file.
 
    **Example**: 
@@ -95,8 +96,6 @@ The example dataframe structure read with pandas on the npz file.
 
    # convert the mz_index back to mz and combine with inten for an array of [(mass, intensity), (mass, intensity), ....]
    arr = np.stack((np.exp(mz_index * LOG10PPM + LOG200), inten), axis = -1)
-
-   
    ```
 
    
