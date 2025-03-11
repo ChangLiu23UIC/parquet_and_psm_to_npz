@@ -128,4 +128,4 @@ The example dataframe structure read with pandas on the npz file.
 
    
 
-6. We have already assembled the search results together with the parquet file into numpy data file (.npz), please see file xxx.py
+6. We have already assembled the search results together with the parquet file into numpy data file (.npz), please see file tsv_parquet_to_npz_file.py
