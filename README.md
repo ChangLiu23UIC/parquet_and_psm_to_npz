@@ -17,6 +17,7 @@ parquet_dir = 'your/file/directory/species/parquet'
 psm_dir = "your/file/directory/species/Peptide_search"
 
 # Processes the entire species, generate npz files based on number of samples
+# File saved at /Merged_result directory by default
 directory_processing(parquet_dir, psm_dir)
 ```
 ### 2. Singe sample processing
@@ -24,9 +25,10 @@ directory_processing(parquet_dir, psm_dir)
 parquet_file = 'your/file/directory/species/parquet/sample.parquet'
 idx_file = 'your/file/directory/species/parquet/sample.idx.json'
 psm_file = "your/file/directory/species/Peptide_search/sample.tsv"
+result_path = "your/file/directory"
 
 # Process a single sample, generate one npz file
-tsv_with_parquet_assemble(psm_file, parquet_file, idx_file) 
+tsv_with_parquet_assemble(psm_file, parquet_file, idx_file, result_path) 
 ```
 
 # Output
