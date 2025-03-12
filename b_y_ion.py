@@ -21,8 +21,8 @@ def cal_b_y_ion_mass(peptide):
         y_ion = protein_list[i - 1:]
         # the protein weight calculated previously contains extra H2O which needs to be removed while calculating the b or y ions
         # concatnate the list to make it suited for protein_weight function
-        b_and_y.append(protein_weight(''.join(b_ion))+1 - 18)
-        b_and_y.append(protein_weight(''.join(y_ion))+19 - 18)
+        b_and_y.append(protein_weight(''.join(b_ion))+1 - 18.010565)
+        b_and_y.append(protein_weight(''.join(y_ion))+19.010565 - 18.010565)
     # sort the list of mass
     sorted_list_of_mass = sorted(b_and_y)
 
