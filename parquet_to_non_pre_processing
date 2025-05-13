@@ -1,0 +1,70 @@
+import time
+import pandas as pd
+import os
+import numpy as np
+from pathlib import Path
+import glob
+import multiprocessing as mp
+from itertools import repeat
+
+
+def tsv_with_parquet_assemble(psm_file: str, parquet_file: str, json_file: str, result_path: str):
+    """
+    Assemble mz and intensity arrays without any normalization or log-transform.
+    """
+    start_func = time.time()
+    base_name = "".join(Path(parquet_file).name.split(".")[:-1])
+
+    # Read files
+    df_tsv = pd.read_csv(psm_file, sep='\t', usecols=["Spectrum", "Peptide", "Retention", "Charge", "Observed M/Z"])
+    df_parquet = pd.read_parquet(parquet_file, columns=['mz', 'int'])
+    df_idx = pd.read_json(json_file, orient="index")
+
+    arr_i = df_idx.to_numpy()
+
+    # Modify columns
+    df_tsv['File'] = df_tsv['Spectrum']
+    df_tsv['Spectrum'] = df_tsv["Spectrum"].str.split(".").str[-2].astype(np.int32)
+
+    mz_list = []
+    intensity_list = []
+
+    for start, end in arr_i:
+        mz_list.append(df_parquet["mz"].iloc[start:end].to_numpy())
+        intensity_list.append(df_parquet["int"].iloc[start:end].to_numpy())
+
+    df_tsv["mz_array"] = mz_list
+    df_tsv["intensity_array"] = intensity_list
+    df_tsv.rename(columns={
+        "Peptide": "sequence",
+        "Observed M/Z": "precursor_mz",
+        "Charge": "precursor_charge"
+    }, inplace=True)
+
+    df_tsv["modified_sequence"] = df_tsv["sequence"]  # if no PTMs available
+
+    save_path = os.path.join(result_path, f"{base_name}.parquet")
+    df_tsv[["sequence", "modified_sequence", "precursor_mz", "precursor_charge", "mz_array", "intensity_array"]].to_parquet(save_path, index=False)
+
+    print(f"{base_name} saved to {save_path} in {time.time() - start_func:.2f}s")
+
+
+def directory_processing(parquet_dir, psm_dir):
+    parquet_files = sorted(glob.glob(fr"{parquet_dir}/*.parquet"))
+    json_files = sorted(glob.glob(fr"{parquet_dir}/*.idx.json"))
+    psm_files = sorted(glob.glob(fr"{psm_dir}/*.tsv"))
+
+    result_path = os.path.join(Path(parquet_dir).parent, "Merged_result")
+    os.makedirs(result_path, exist_ok=True)
+
+    with mp.Pool() as pool:
+        pool.starmap(tsv_with_parquet_assemble, zip(psm_files, parquet_files, json_files, repeat(result_path)), chunksize=1)
+
+
+if __name__ == '__main__':
+    psm_dir = r"G:\Files_for_Yuchi\Zebrafish\Peptide_search"
+    parquet_dir = r'G:\Files_for_Yuchi\Zebrafish\parquet'
+
+    start = time.time()
+    directory_processing(parquet_dir, psm_dir)
+    print(f"Total time: {time.time() - start:.2f}s")
